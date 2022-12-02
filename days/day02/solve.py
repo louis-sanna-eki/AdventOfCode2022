@@ -8,40 +8,21 @@ shape_scores = {
 # Open the file containing the strategy guide
 with open("input.txt", "r") as f:
     # Parse the strategy guide
-    raw_strategies = [line.strip().split() for line in f]
+    strategies = [line.strip().split() for line in f]
 
 
-def convert_strategy(shape):
-    if shape == "X":
-        return "A"
-    if shape == "Y":
-        return "B"
-    if shape == "Z":
-        return "C"
-
-    return shape
-
-
-strategy_guide = [
-    [strategy[0], convert_strategy(strategy[1])] for strategy in raw_strategies
-]
-
-# Keep a running total of your score
-total_score = 0
-
-# Iterate over each round in the strategy guide
-for opponent_shape, your_shape in strategy_guide:
+def get_round_score(player_shape, opponent_shape):
     # Calculate the score for the shape you selected
-    your_score = shape_scores[your_shape]
+    your_score = shape_scores[player_shape]
 
     # Calculate the outcome of the round
-    if opponent_shape == your_shape:
+    if opponent_shape == player_shape:
         # If the shapes are the same, the round is a draw
         outcome = 3
     elif (
-        (opponent_shape == "A" and your_shape == "C")
-        or (opponent_shape == "B" and your_shape == "A")
-        or (opponent_shape == "C" and your_shape == "B")
+        (opponent_shape == "A" and player_shape == "C")
+        or (opponent_shape == "B" and player_shape == "A")
+        or (opponent_shape == "C" and player_shape == "B")
     ):
         # If the opponent's shape defeats your shape, you lose
         outcome = 0
@@ -49,8 +30,53 @@ for opponent_shape, your_shape in strategy_guide:
         # Otherwise, you win
         outcome = 6
 
-    # Add the score for the round to the running total
-    total_score += your_score + outcome
+    return your_score + outcome
+
+
+def get_player_shape(opponent_shape, instruction):
+    if opponent_shape == "A":
+        # If the opponent is playing rock, the player needs to play rock to get a draw,
+        #  scissors to lose, or paper to win.
+        if instruction == "Y":
+            return "A"
+        elif instruction == "X":
+            return "C"
+        elif instruction == "Z":
+            return "B"
+    elif opponent_shape == "B":
+        # If the opponent is playing paper, the player needs to play paper to get a draw
+        #  rock to lose, or scissors to win.
+        if instruction == "Y":
+            return "B"
+        elif instruction == "X":
+            return "A"
+        elif instruction == "Z":
+            return "C"
+    elif opponent_shape == "C":
+        # If the opponent is playing scissors, the player needs to play scissors
+        #  to get a draw, paper to lose, or rock to win.
+        if instruction == "Y":
+            return "C"
+        elif instruction == "X":
+            return "B"
+        elif instruction == "Z":
+            return "A"
+
+
+# Keep a running total of your score
+total_score = 0
+
+# Iterate over each round in the strategy guide
+for opponent_shape, instruction in strategies:
+
+    # Get the shape that the player should play to follow the strategy guide.
+    player_shape = get_player_shape(opponent_shape, instruction)
+
+    # Get the score for the round.
+    round_score = get_round_score(player_shape, opponent_shape)
+
+    # Add the score for the round to the total score.
+    total_score += round_score
 
 # Print the total score
 print(total_score)
