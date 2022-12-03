@@ -5,16 +5,14 @@ with open("input.txt") as f:
 # Initialize a variable to store the sum of the priorities
 sum_of_priorities = 0
 
-# Iterate over each rucksack
-for rucksack in rucksacks:
-    # Split the string into two parts, representing the items in each compartment
-    compartment1, compartment2 = (
-        rucksack[: len(rucksack) // 2],
-        rucksack[len(rucksack) // 2 :],
-    )
+# Split the list of rucksacks into groups of three
+groups = zip(rucksacks[::3], rucksacks[1::3], rucksacks[2::3])
+
+# Iterate over each group
+for group in groups:
 
     # Find the items that appear in both compartments
-    common_items = set(compartment1).intersection(set(compartment2))
+    common_items = set(group[0]).intersection(set(group[1])).intersection(set(group[2]))
 
     # Iterate over each common item
     for item in common_items:
