@@ -36,17 +36,27 @@ for line in reversed(lines):
 # we read the file in revere, so instructions need to be reversed
 instructions = instructions[::-1]
 
+
+# part 1
+# Move the specified number of crates from the from_stack to the to_stack
+# for instruction in instructions:
+#     # Unpack the instruction
+#     num_crates, from_stack, to_stack = instruction
+#     for i in range(num_crates):
+#         if len(stacks[from_stack - 1]) == 0:
+#             continue
+#         crate = stacks[from_stack - 1].pop()
+#         stacks[to_stack - 1].append(crate)
+
+# part 2
 # Simulate the rearrangement steps
 for instruction in instructions:
     # Unpack the instruction
     num_crates, from_stack, to_stack = instruction
 
-    # Move the specified number of crates from the from_stack to the to_stack
-    for i in range(num_crates):
-        if len(stacks[from_stack - 1]) == 0:
-            continue
-        crate = stacks[from_stack - 1].pop()
-        stacks[to_stack - 1].append(crate)
+    moving_crates = stacks[from_stack - 1][-num_crates:]
+    stacks[from_stack - 1] = stacks[from_stack - 1][:-num_crates]
+    stacks[to_stack - 1].extend(moving_crates)
 
 # Print the top crate of each stack
 for stack in stacks:
