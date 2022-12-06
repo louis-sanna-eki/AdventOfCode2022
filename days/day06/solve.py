@@ -1,20 +1,29 @@
 with open("input.txt") as input_file:
-    letters = input_file.read().strip()
+    input = input_file.read().strip()
 
-queue = []
+START_PACKET_MARKER_LENGTH = 4
+START_MESSAGE_MARKER_LENGTH = 14
 
-result = None
 
-print(letters)
+def find_first_marker_index(letters, marker_length):
+    queue = []
+    result = None
 
-for index, letter in enumerate(letters):
-    if len(queue) < 4:
+    for index, letter in enumerate(letters):
+        if len(queue) < marker_length:
+            queue.append(letter)
+            continue
+        if len(set(queue)) == marker_length:
+            result = index
+            break
+        queue.pop(0)
         queue.append(letter)
-        continue
-    if len(set(queue)) == 4:
-        result = index
-        break
-    queue.pop(0)
-    queue.append(letter)
 
-print(result)
+    return result
+
+
+start_of_packet = find_first_marker_index(input, START_PACKET_MARKER_LENGTH)
+print("start_of_packet", start_of_packet)
+
+start_of_message = find_first_marker_index(input, START_MESSAGE_MARKER_LENGTH)
+print("start_of_message", start_of_message)
