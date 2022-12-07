@@ -66,7 +66,33 @@ def solve_part1(lines: list[str]):
     print("Part 1 answer:", result)
 
 
+def solve_part2(lines: list[str]):
+    root = create_tree(lines)
+
+    result: int = 0
+
+    current_trees: list[File] = [root]
+    dirs: list[File] = []
+
+    while len(current_trees) > 0:
+        for tree in current_trees:
+            if tree.is_dir:
+                dirs.append(tree)
+
+        current_trees = [child for tree in current_trees for child in tree.children]
+
+    sorted_dirs = sorted(dirs, key=lambda dir: dir.total_size())
+
+    for directory in sorted_dirs:
+        if 70000000 - root.total_size() + directory.total_size() >= 30000000:
+            result = directory.total_size()
+            break
+
+    print("Part 2 answer:", result)
+
+
 with open("input.txt", encoding="utf-8") as file_descriptor:
     file_lines = file_descriptor.read().strip().split("\n")
 
 solve_part1(file_lines)
+solve_part2(file_lines)
