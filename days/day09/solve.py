@@ -33,6 +33,17 @@ def move(
     return new_head, move_tail(new_head, tail)
 
 
+def move2(knots: List[Tuple[int, int]], direction: str) -> List[Tuple[int, int]]:
+    dx, dy = delta_by_head[direction]
+    x_h, y_h = knots[0]
+    new_head = x_h + dx, y_h + dy
+    result: List[Tuple[int, int]] = list()
+    result.append(new_head)
+    for knot in knots[1:]:
+        result.append(move_tail(result[-1], knot))
+    return result
+
+
 def solve_part1(commands: List[Tuple[str, int]]):
     visited: set[Tuple[int, int]] = set()
     head: Tuple[int, int] = (0, 0)
@@ -42,6 +53,17 @@ def solve_part1(commands: List[Tuple[str, int]]):
         for i in range(magnitude):
             head, tail = move(head, tail, direction)
             visited.add(tail)
+    return len(visited)
+
+
+def solve_part2(commands: List[Tuple[str, int]]):
+    visited: set[Tuple[int, int]] = set()
+    knots: List[Tuple[int, int]] = [(0, 0) for i in range(10)]
+    visited.add(knots[-1])
+    for (direction, magnitude) in commands:
+        for i in range(magnitude):
+            knots = move2(knots, direction)
+            visited.add(knots[-1])
     return len(visited)
 
 
@@ -55,6 +77,7 @@ def main():
     The main entry point of the program.
     """
     print("Part 1 answer:", solve_part1(commands))
+    print("Part 2 answer:", solve_part2(commands))
 
 
 if __name__ == "__main__":
