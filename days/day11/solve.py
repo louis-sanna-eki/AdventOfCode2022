@@ -1,20 +1,20 @@
 from typing import Callable, List
+import math
 
 
 class Monkey:
     def __init__(
         self,
+        id: int,
         items: list[int],
         inspect: Callable[[int], int],
         throw_to: Callable[[int], int],
     ):
+        self.id = id
         self.items = items
         self.inspect = inspect
         self.throw_to = throw_to
-
-
-def solve_part1():
-    return 0
+        self.count = 0
 
 
 def make_adder(var) -> Callable[[int], int]:
@@ -62,8 +62,29 @@ def parse(lines: List[str]):
             true_index=true_monkey_index,
             false_index=false_monkey_index,
         )
-        monkeys.append(Monkey(items=items, inspect=inspect, throw_to=throw_to))
+        monkeys.append(
+            Monkey(id=monkey_index, items=items, inspect=inspect, throw_to=throw_to)
+        )
     return monkeys
+
+
+part1_round_count = 20
+
+
+# BEWARE SIDE EFFECTS!
+def solve_part1(monkeys: List[Monkey]):
+    for _ in range(part1_round_count):
+        for monkey in monkeys:
+            for item in monkey.items:
+                new_worry = math.floor(monkey.inspect(item) / 3)
+                monkey.count += 1
+                index_to_throw = monkey.throw_to(new_worry)
+                monkeys[index_to_throw].items.append(new_worry)
+            monkey.items = list()
+
+    sorted_monkeys = sorted(monkeys, key=lambda x: x.count)
+    result = math.prod([monkey.count for monkey in sorted_monkeys[-2:]])
+    return result
 
 
 with open("input.txt", encoding="utf-8") as file_descriptor:
@@ -74,7 +95,8 @@ def main():
     """
     The main entry point of the program.
     """
-    parse(lines)
+    monkeys = parse(lines)
+    print("Solution to part1", solve_part1(monkeys))
 
 
 if __name__ == "__main__":
