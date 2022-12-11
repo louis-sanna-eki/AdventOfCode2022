@@ -5,12 +5,12 @@ import math
 class Monkey:
     def __init__(
         self,
-        id: int,
+        divisor: int,
         items: list[int],
         inspect: Callable[[int], int],
         throw_to: Callable[[int], int],
     ):
-        self.id = id
+        self.divisor = divisor
         self.items = items
         self.inspect = inspect
         self.throw_to = throw_to
@@ -63,7 +63,7 @@ def parse(lines: List[str]):
             false_index=false_monkey_index,
         )
         monkeys.append(
-            Monkey(id=monkey_index, items=items, inspect=inspect, throw_to=throw_to)
+            Monkey(divisor=divisor, items=items, inspect=inspect, throw_to=throw_to)
         )
     return monkeys
 
@@ -87,6 +87,26 @@ def solve_part1(monkeys: List[Monkey]):
     return result
 
 
+part2_round_count = 10000
+
+
+# BEWARE SIDE EFFECTS!
+def solve_part2(monkeys: List[Monkey]):
+    common_divisor = math.lcm(*[monkey.divisor for monkey in monkeys])
+    for _ in range(part2_round_count):
+        for monkey in monkeys:
+            for item in monkey.items:
+                new_worry = monkey.inspect(item) % common_divisor
+                monkey.count += 1
+                index_to_throw = monkey.throw_to(new_worry)
+                monkeys[index_to_throw].items.append(new_worry)
+            monkey.items = list()
+
+    sorted_monkeys = sorted(monkeys, key=lambda x: x.count)
+    result = math.prod([monkey.count for monkey in sorted_monkeys[-2:]])
+    return result
+
+
 with open("input.txt", encoding="utf-8") as file_descriptor:
     lines = file_descriptor.read().strip().split("\n")
 
@@ -97,6 +117,8 @@ def main():
     """
     monkeys = parse(lines)
     print("Solution to part1", solve_part1(monkeys))
+    monkeys = parse(lines)
+    print("Solution to part2", solve_part2(monkeys))
 
 
 if __name__ == "__main__":
