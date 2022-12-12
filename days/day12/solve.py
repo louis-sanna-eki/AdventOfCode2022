@@ -62,7 +62,29 @@ def parse(lines: List[str]):
 def solve_part1(nodes: dict[Tuple[int, int], Node], start: Node, end: Node):
     q = queue.PriorityQueue[Tuple[int, Node]]()
     start.distance = 0
+    # Look here how that code could be cleaned up:
+    # https://docs.python.org/fr/3/library/queue.html#queue.PriorityQueue
     q.put((0, start.position))
+    while q.empty() is False:
+        _, position = q.get()
+        curr = nodes[position]
+        if curr.visited:
+            continue
+        curr.visited = True
+        for n in curr.neighbors:
+            n.distance = min(curr.distance + 1, n.distance)
+            q.put((n.distance, n.position))
+    return end.distance
+
+
+def solve_part2(nodes: dict[Tuple[int, int], Node], start: Node, end: Node):
+    q = queue.PriorityQueue[Tuple[int, Node]]()
+    # Look here how that code could be cleaned up:
+    #  https://docs.python.org/fr/3/library/queue.html#queue.PriorityQueue
+    q.put((0, end.position))
+    for node in [node for _, node in nodes.items() if node.height == 1]:
+        node.distance = 0
+        q.put((node.distance, node.position))
     while q.empty() is False:
         _, position = q.get()
         curr = nodes[position]
@@ -85,6 +107,8 @@ def main():
     """
     nodes, start, end = parse(lines)
     print("solution to part1 is :", solve_part1(nodes, start, end))
+    nodes, start, end = parse(lines)
+    print("solution to part2 is :", solve_part2(nodes, start, end))
 
 
 if __name__ == "__main__":
