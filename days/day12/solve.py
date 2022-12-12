@@ -1,4 +1,6 @@
 from typing import List, Dict, Tuple
+import math
+import queue
 
 
 def letter_to_number(letter):
@@ -14,6 +16,8 @@ class Node:
         self.height = height
         self.position = position
         self.neighbors: List[Node] = []
+        self.distance = math.inf
+        self.visited = False
 
 
 # BEWARE side-effect
@@ -23,7 +27,7 @@ def add_neighbor(
     if (i, j) not in node_by_indexes:
         return
     neighbor = node_by_indexes[(i, j)]
-    if abs(neighbor.height - parent.height) > 1:
+    if neighbor.height - parent.height > 1:
         return
     parent.neighbors.append(neighbor)
 
@@ -55,6 +59,22 @@ def parse(lines: List[str]):
     return node_by_indexes, start, end
 
 
+def solve_part1(nodes: dict[Tuple[int, int], Node], start: Node, end: Node):
+    q = queue.PriorityQueue[Tuple[int, Node]]()
+    start.distance = 0
+    q.put((0, start.position))
+    while q.empty() is False:
+        _, position = q.get()
+        curr = nodes[position]
+        if curr.visited:
+            continue
+        curr.visited = True
+        for n in curr.neighbors:
+            n.distance = min(curr.distance + 1, n.distance)
+            q.put((n.distance, n.position))
+    return end.distance
+
+
 with open("input.txt", encoding="utf-8") as file_descriptor:
     lines = file_descriptor.read().strip().split("\n")
 
@@ -64,11 +84,7 @@ def main():
     The main entry point of the program.
     """
     nodes, start, end = parse(lines)
-    print(nodes)
-    from pprint import pprint
-
-    pprint(vars(start))
-    pprint(vars(end))
+    print("solution to part1 is :", solve_part1(nodes, start, end))
 
 
 if __name__ == "__main__":
