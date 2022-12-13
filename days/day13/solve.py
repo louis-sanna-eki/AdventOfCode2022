@@ -1,5 +1,6 @@
 from typing import List, Tuple, Union
-
+from functools import cmp_to_key
+import json
 
 Packet = Union[int, List["Packet"]]
 
@@ -48,6 +49,28 @@ def solve_part1(pairs: List[Tuple[Packet, Packet]]):
     return result
 
 
+def compare(left: Packet, right: Packet) -> int:
+    res = is_right_order(left, right)
+    if res is True:
+        return 1
+    if res is False:
+        return -1
+    return 0
+
+
+def solve_part2(packets: List[Packet]):
+    message = sorted(packets, key=cmp_to_key(compare))[::-1]
+    index_2 = 0
+    index_6 = 0
+    for index, m in enumerate(message):
+        if json.dumps(m) == "[[2]]":
+            index_2 = index + 1
+        if json.dumps(m) == "[[6]]":
+            index_6 = index + 1
+
+    return index_2 * index_6
+
+
 with open("input.txt", encoding="utf-8") as file_descriptor:
     lines = file_descriptor.read().strip().split("\n")
 
@@ -58,6 +81,12 @@ def main():
     """
     pairs = parse(lines)
     print("solution to part1 is :", solve_part1(pairs))
+    pairs = parse(lines)
+    packets: List[Packet] = list([[[2]], [[6]]])
+    for (left, right) in pairs:
+        packets.append(left)
+        packets.append(right)
+    print("solution to part2 is :", solve_part2(packets))
 
 
 if __name__ == "__main__":
