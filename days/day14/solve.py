@@ -1,7 +1,7 @@
 from typing import Dict, List, Tuple
 
 
-def parse(lines: List[str]):
+def parse(lines: List[str]) -> Dict[Tuple[int, int], int]:
     result: Dict[Tuple[int, int], int] = dict()
     for i in range(1000):
         for j in range(1000):
@@ -15,22 +15,38 @@ def parse(lines: List[str]):
         ]
         for index, point in enumerate(points[:-1]):
             next_point = points[index + 1]
-            start_i = point[0]
-            stop_i = next_point[0] + 1
-            for i in range(start_i, stop_i, 1 if stop_i > start_i else -1):
-                start_j = point[1]
-                stop_j = next_point[1] + 1
-                for j in range(
-                    start_j,
-                    stop_j,
-                    1 if stop_j > start_j else -1,
-                ):
+            start_i = min(point[0], next_point[0])
+            stop_i = max(point[0], next_point[0]) + 1
+            for i in range(start_i, stop_i):
+                start_j = min(point[1], next_point[1])
+                stop_j = max(point[1], next_point[1]) + 1
+                for j in range(start_j, stop_j):
                     result[(i, j)] = "#"
     return result
 
 
-def solve_part1():
-    return 0
+# BEWARE SIDE-EFFECTS
+def solve_part1(cave: Dict[Tuple[int, int], int]):
+    sand = (500, 0)
+    grain_count = 0
+    while True:
+        (x, y) = sand
+        if y > 900:
+            break
+        if cave.get((x, y + 1), "?") == ".":
+            sand = (x, y + 1)
+            continue
+        if cave.get((x - 1, y + 1), "?") == ".":
+            sand = (x - 1, y + 1)
+            continue
+        if cave.get((x + 1, y + 1), "?") == ".":
+            sand = (x + 1, y + 1)
+            continue
+        cave[sand] = "o"
+        grain_count += 1
+        sand = (500, 0)
+
+    return grain_count
 
 
 with open("input.txt", encoding="utf-8") as file_descriptor:
@@ -41,7 +57,8 @@ def main():
     """
     The main entry point of the program.
     """
-    parse(lines)
+    cave = parse(lines)
+    print("Solve part1 :", solve_part1(cave))
 
 
 if __name__ == "__main__":
